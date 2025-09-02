@@ -27,7 +27,7 @@ import {
   Logout
 } from '@mui/icons-material';
 
-import Dashboard from './components/Dashboard';
+import DashboardComponent from './components/Dashboard';
 import Transactions from './components/Transactions';
 import Categories from './components/Categories';
 import Budgets from './components/Budgets';
@@ -117,7 +117,7 @@ const MainApp: React.FC<MainAppProps> = () => {
   const renderContent = () => {
     switch (selectedTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return <DashboardComponent />;
       case 'transactions':
         return <Transactions />;
       case 'categories':
@@ -125,7 +125,7 @@ const MainApp: React.FC<MainAppProps> = () => {
       case 'budgets':
         return <Budgets />;
       default:
-        return <Dashboard />;
+        return <DashboardComponent />;
     }
   };
 
