@@ -66,7 +66,7 @@ const Budgets: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get('/categories');
-      setCategories(response.data.filter(cat => cat.type === 'expense'));
+      setCategories(response.data.filter((cat: Category) => cat.type === 'expense'));
     } catch (error: any) {
       console.error('Failed to fetch categories:', error);
     }
@@ -77,7 +77,7 @@ const Budgets: React.FC = () => {
     fetchBudgets();
   }, []);
 
-  const calculateDateRange = (period: string, startDate: string) => {
+  const calculateDateRange = (period: string, startDate: string): string => {
     const start = new Date(startDate);
     let end: Date;
 

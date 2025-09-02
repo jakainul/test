@@ -36,30 +36,27 @@ A comprehensive personal finance tracking application built with React, Node.js,
 
 ### Installation
 
-1. **Clone the repository**
+1. **Navigate to the project directory**
    ```bash
-   git clone <repository-url>
-   cd finance-tracker
+   cd /workspace/finance-tracker
    ```
 
 2. **Install backend dependencies**
    ```bash
    cd backend
    npm install
+   npm audit fix
    ```
 
 3. **Install frontend dependencies**
    ```bash
    cd ../frontend
-   npm install
+   npm install --legacy-peer-deps
    ```
 
-4. **Set up environment variables**
-   ```bash
-   cd ../backend
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
+4. **Environment variables are already configured**
+   - Backend: `backend/.env`
+   - Frontend: `frontend/.env`
 
 ### Running the Application
 

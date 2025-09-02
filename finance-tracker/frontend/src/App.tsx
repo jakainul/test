@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   ThemeProvider,
   createTheme,
@@ -18,7 +18,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import {
-  Dashboard,
+  Dashboard as DashboardIcon,
   AccountBalance,
   Category,
   TrendingUp,
@@ -71,7 +71,7 @@ const MainApp: React.FC<MainAppProps> = () => {
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <Dashboard /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon /> },
     { id: 'transactions', label: 'Transactions', icon: <AccountBalance /> },
     { id: 'categories', label: 'Categories', icon: <Category /> },
     { id: 'budgets', label: 'Budgets', icon: <TrendingUp /> },
