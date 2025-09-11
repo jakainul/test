@@ -3,9 +3,10 @@ import { addSalary } from '../api';
 
 interface SalaryFormProps {
   onSalaryAdded: () => void;
+  showToast: (message: string, type: 'success' | 'error') => void;
 }
 
-const SalaryForm: React.FC<SalaryFormProps> = ({ onSalaryAdded }) => {
+const SalaryForm: React.FC<SalaryFormProps> = ({ onSalaryAdded, showToast }) => {
   const [amount, setAmount] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -20,7 +21,7 @@ const SalaryForm: React.FC<SalaryFormProps> = ({ onSalaryAdded }) => {
     e.preventDefault();
     
     if (!amount || !month || !year) {
-      alert('Please fill in all fields');
+      showToast('Please fill in all fields', 'error');
       return;
     }
 
@@ -35,10 +36,11 @@ const SalaryForm: React.FC<SalaryFormProps> = ({ onSalaryAdded }) => {
       setAmount('');
       setMonth('');
       setYear(new Date().getFullYear().toString());
+      showToast(`Salary of €${parseFloat(amount).toFixed(2)} added successfully!`, 'success');
       onSalaryAdded();
     } catch (error) {
       console.error('Error adding salary:', error);
-      alert('Error adding salary. Please try again.');
+      showToast('Error adding salary. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }

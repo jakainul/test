@@ -5,9 +5,10 @@ import { deleteSalary } from '../api';
 interface SalaryListProps {
   salaries: Salary[];
   onSalaryDeleted: () => void;
+  showToast: (message: string, type: 'success' | 'error') => void;
 }
 
-const SalaryList: React.FC<SalaryListProps> = ({ salaries, onSalaryDeleted }) => {
+const SalaryList: React.FC<SalaryListProps> = ({ salaries, onSalaryDeleted, showToast }) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -16,14 +17,15 @@ const SalaryList: React.FC<SalaryListProps> = ({ salaries, onSalaryDeleted }) =>
     }).format(amount);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, salary: Salary) => {
     if (window.confirm('Are you sure you want to delete this salary entry?')) {
       try {
         await deleteSalary(id);
+        showToast(`Salary entry for ${salary.month} ${salary.year} deleted successfully!`, 'success');
         onSalaryDeleted();
       } catch (error) {
         console.error('Error deleting salary:', error);
-        alert('Error deleting salary. Please try again.');
+        showToast('Error deleting salary. Please try again.', 'error');
       }
     }
   };
@@ -53,7 +55,7 @@ const SalaryList: React.FC<SalaryListProps> = ({ salaries, onSalaryDeleted }) =>
             </div>
           </div>
           <button
-            onClick={() => handleDelete(salary.id)}
+            onClick={() => handleDelete(salary.id, salary)}
             className="btn btn-danger"
           >
             Delete

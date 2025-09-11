@@ -26,6 +26,7 @@ const initDatabase = () => {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           amount REAL NOT NULL,
           description TEXT,
+          category TEXT DEFAULT 'Other',
           month TEXT NOT NULL,
           year INTEGER NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -34,8 +35,12 @@ const initDatabase = () => {
         if (err) {
           reject(err);
         } else {
-          console.log('Database initialized successfully');
-          resolve();
+          // Add category column to existing table if it doesn't exist
+          db.run(`ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'Other'`, (alterErr) => {
+            // Ignore error if column already exists
+            console.log('Database initialized successfully');
+            resolve();
+          });
         }
       });
     });

@@ -67,7 +67,7 @@ app.get('/api/expenses', (req, res) => {
 
 // Add new expense
 app.post('/api/expenses', (req, res) => {
-  const { amount, description, month, year } = req.body;
+  const { amount, description, category, month, year } = req.body;
   
   if (!amount || !month || !year) {
     res.status(400).json({ error: 'Amount, month, and year are required' });
@@ -75,8 +75,8 @@ app.post('/api/expenses', (req, res) => {
   }
 
   db.run(
-    'INSERT INTO expenses (amount, description, month, year) VALUES (?, ?, ?, ?)',
-    [amount, description || '', month, year],
+    'INSERT INTO expenses (amount, description, category, month, year) VALUES (?, ?, ?, ?, ?)',
+    [amount, description || '', category || 'Other', month, year],
     function(err) {
       if (err) {
         res.status(500).json({ error: err.message });
@@ -86,6 +86,7 @@ app.post('/api/expenses', (req, res) => {
         id: this.lastID,
         amount,
         description,
+        category,
         month,
         year,
         message: 'Expense added successfully'

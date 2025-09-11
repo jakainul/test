@@ -10,6 +10,7 @@ export interface Expense {
   id: number;
   amount: number;
   description: string;
+  category: string;
   month: string;
   year: number;
   created_at: string;
