@@ -380,3 +380,31 @@ code {
   color: #6b7280;
   text-align: right;
 }
+
+/* Savings-specific styles */
+.list-item-savings {
+  color: #059669;
+}
+
+.savings-category {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.progress-fill.savings-progress {
+  background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+}
+
+.savings-summary .category-amount {
+  color: #059669;
+}
+
+/* Section divider */
+.section-divider {
+  height: 2px;
+  background: linear-gradient(90deg, #e5e7eb 0%, #9ca3af 50%, #e5e7eb 100%);
+  border: none;
+  margin: 40px 0;
+  border-radius: 1px;
+}

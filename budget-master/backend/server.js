@@ -27,6 +27,9 @@ app.get('/', (req, res) => {
       'GET /api/expenses - Get all expenses',
       'POST /api/expenses - Add new expense',
       'DELETE /api/expenses/:id - Delete expense',
+      'GET /api/savings - Get all savings',
+      'POST /api/savings - Add new savings entry',
+      'DELETE /api/savings/:id - Delete savings entry',
       'GET /api/budget-summary - Get budget summary',
       'GET /health - Health check'
     ]
@@ -120,6 +123,70 @@ app.post('/api/expenses', (req, res) => {
       });
     }
   );
+});
+
+// Get all savings
+app.get('/api/savings', (req, res) => {
+  db.all('SELECT * FROM savings ORDER BY created_at DESC', (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+// Add new savings entry
+app.post('/api/savings', (req, res) => {
+  const { amount, description, category, month, year } = req.body;
+  
+  if (!amount || !category || !month || !year) {
+    res.status(400).json({ error: 'Amount, category, month, and year are required' });
+    return;
+  }
+
+  const validCategories = ['ETFs', 'Stocks', 'Savings Account'];
+  if (!validCategories.includes(category)) {
+    res.status(400).json({ error: 'Category must be one of: ETFs, Stocks, Savings Account' });
+    return;
+  }
+
+  db.run(
+    'INSERT INTO savings (amount, description, category, month, year) VALUES (?, ?, ?, ?, ?)',
+    [amount, description || '', category, month, year],
+    function(err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        id: this.lastID,
+        amount,
+        description,
+        category,
+        month,
+        year,
+        message: 'Savings entry added successfully'
+      });
+    }
+  );
+});
+
+// Delete savings entry
+app.delete('/api/savings/:id', (req, res) => {
+  const { id } = req.params;
+  
+  db.run('DELETE FROM savings WHERE id = ?', [id], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ error: 'Savings entry not found' });
+      return;
+    }
+    res.json({ message: 'Savings entry deleted successfully' });
+  });
 });
 
 // Get budget summary (total salaries - total expenses)
