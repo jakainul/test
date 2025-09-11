@@ -15,6 +15,33 @@ initDatabase().catch(console.error);
 
 // Routes
 
+// Root route - API information
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Budget Master API Server',
+    version: '1.0.0',
+    endpoints: [
+      'GET /api/salaries - Get all salaries',
+      'POST /api/salaries - Add new salary',
+      'DELETE /api/salaries/:id - Delete salary',
+      'GET /api/expenses - Get all expenses',
+      'POST /api/expenses - Add new expense',
+      'DELETE /api/expenses/:id - Delete expense',
+      'GET /api/budget-summary - Get budget summary',
+      'GET /health - Health check'
+    ]
+  });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 // Get all salaries
 app.get('/api/salaries', (req, res) => {
   db.all('SELECT * FROM salaries ORDER BY created_at DESC', (err, rows) => {
