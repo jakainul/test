@@ -21,3 +21,13 @@ export interface BudgetSummary {
   totalExpenses: number;
   balance: number;
 }
+
+export interface Savings {
+  id: number;
+  amount: number;
+  description: string;
+  category: 'ETFs' | 'Stocks' | 'Savings Account';
+  month: string;
+  year: number;
+  created_at: string;
+}
