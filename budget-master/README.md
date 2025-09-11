@@ -77,7 +77,7 @@ Before installing Budget Master, make sure you have the following installed on y
    cd budget-master/backend
    npm start
    ```
-   The backend server will start on http://localhost:5000
+   The backend server will start on http://localhost:5001
    
    **Terminal 2 - Frontend Server:**
    ```bash
@@ -128,8 +128,8 @@ For convenience, you can create a startup script:
 ### Troubleshooting
 
 **Port Already in Use:**
-If you get an error that port 3000 or 5000 is already in use, you can:
-- Kill the process using the port: `lsof -ti:3000 | xargs kill -9`
+If you get an error that port 3000 or 5001 is already in use, you can:
+- Kill the process using the port: `lsof -ti:3000 | xargs kill -9` or `lsof -ti:5001 | xargs kill -9`
 - Or change the port in the package.json scripts
 
 **Database Issues:**
@@ -142,7 +142,7 @@ If you get an error that port 3000 or 5000 is already in use, you can:
 
 **CORS Issues:**
 - The frontend is configured to proxy requests to the backend
-- Make sure both servers are running on their default ports (3000 and 5000)
+- Make sure both servers are running on their default ports (3000 and 5001)
 
 ### Using the Application
 

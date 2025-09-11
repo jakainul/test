@@ -45,7 +45,7 @@ FRONTEND_PID=$!
 echo ""
 echo "🎉 Budget Master is starting!"
 echo "================================"
-echo "Backend:  http://localhost:5000"
+echo "Backend:  http://localhost:5001"
 echo "Frontend: http://localhost:3000"
 echo ""
 echo "Press Ctrl+C to stop both servers"
