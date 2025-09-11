@@ -1,0 +1,26 @@
+{
+  "name": "budget-master",
+  "version": "1.0.0",
+  "description": "A simple React application for tracking monthly salaries and expenses",
+  "main": "index.js",
+  "scripts": {
+    "install-all": "npm run install-backend && npm run install-frontend",
+    "install-backend": "cd backend && npm install",
+    "install-frontend": "cd frontend && npm install",
+    "start": "npm run start-backend & npm run start-frontend",
+    "start-backend": "cd backend && npm start",
+    "start-frontend": "cd frontend && npm start",
+    "dev": "npm run dev-backend & npm run dev-frontend",
+    "dev-backend": "cd backend && npm run dev",
+    "dev-frontend": "cd frontend && npm start"
+  },
+  "keywords": [
+    "budget",
+    "finance",
+    "react",
+    "nodejs",
+    "sqlite"
+  ],
+  "author": "",
+  "license": "MIT"
+}
