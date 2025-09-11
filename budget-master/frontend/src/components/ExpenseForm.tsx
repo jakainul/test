@@ -3,11 +3,13 @@ import { addExpense } from '../api';
 
 interface ExpenseFormProps {
   onExpenseAdded: () => void;
+  showToast: (message: string, type: 'success' | 'error') => void;
 }
 
-const ExpenseForm: React.FC<ExpenseFormProps> = ({ onExpenseAdded }) => {
+const ExpenseForm: React.FC<ExpenseFormProps> = ({ onExpenseAdded, showToast }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,11 +19,24 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onExpenseAdded }) => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  const categories = [
+    'Food & Dining',
+    'Transportation',
+    'Shopping',
+    'Entertainment',
+    'Bills & Utilities',
+    'Healthcare',
+    'Education',
+    'Travel',
+    'Personal Care',
+    'Other'
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!amount || !month || !year) {
-      alert('Please fill in all required fields');
+      showToast('Please fill in all required fields', 'error');
       return;
     }
 
@@ -30,18 +45,22 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onExpenseAdded }) => {
       await addExpense({
         amount: parseFloat(amount),
         description,
+        category: category || 'Other',
         month,
         year: parseInt(year)
       });
       
+      const expenseDesc = description ? ` for ${description}` : '';
       setAmount('');
       setDescription('');
+      setCategory('');
       setMonth('');
       setYear(new Date().getFullYear().toString());
+      showToast(`Expense of €${parseFloat(amount).toFixed(2)}${expenseDesc} added successfully!`, 'success');
       onExpenseAdded();
     } catch (error) {
       console.error('Error adding expense:', error);
-      alert('Error adding expense. Please try again.');
+      showToast('Error adding expense. Please try again.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -74,6 +93,22 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onExpenseAdded }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter expense description"
           />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="expense-category">Category</label>
+          <select
+            id="expense-category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Select category</option>
+            {categories.map((categoryName) => (
+              <option key={categoryName} value={categoryName}>
+                {categoryName}
+              </option>
+            ))}
+          </select>
         </div>
         
         <div className="form-group">

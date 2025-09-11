@@ -5,6 +5,8 @@ import ExpenseForm from './components/ExpenseForm';
 import BudgetSummary from './components/BudgetSummary';
 import SalaryList from './components/SalaryList';
 import ExpenseList from './components/ExpenseList';
+import ExpenseSummary from './components/ExpenseSummary';
+import Toast from './components/Toast';
 import { getSalaries, getExpenses, getBudgetSummary } from './api';
 import { Salary, Expense, BudgetSummary as BudgetSummaryType } from './types';
 
@@ -17,6 +19,12 @@ function App() {
     balance: 0
   });
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const fetchData = async () => {
     try {
@@ -31,7 +39,7 @@ function App() {
       setBudgetSummary(summaryData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      alert('Error loading data. Please make sure the backend server is running.');
+      showToast('Error loading data. Please make sure the backend server is running.', 'error');
     } finally {
       setLoading(false);
     }
@@ -65,14 +73,24 @@ function App() {
       <BudgetSummary summary={budgetSummary} />
 
       <div className="grid">
-        <SalaryForm onSalaryAdded={handleDataChange} />
-        <ExpenseForm onExpenseAdded={handleDataChange} />
+        <SalaryForm onSalaryAdded={handleDataChange} showToast={showToast} />
+        <ExpenseForm onExpenseAdded={handleDataChange} showToast={showToast} />
       </div>
 
       <div className="grid">
-        <SalaryList salaries={salaries} onSalaryDeleted={handleDataChange} />
-        <ExpenseList expenses={expenses} onExpenseDeleted={handleDataChange} />
+        <SalaryList salaries={salaries} onSalaryDeleted={handleDataChange} showToast={showToast} />
+        <ExpenseList expenses={expenses} onExpenseDeleted={handleDataChange} showToast={showToast} />
       </div>
+
+      <ExpenseSummary expenses={expenses} />
+      
+      {toast && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={() => setToast(null)} 
+        />
+      )}
     </div>
   );
 }
