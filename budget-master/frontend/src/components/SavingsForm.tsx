@@ -163,6 +163,36 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
           />
         </div>
 
+        <div className="form-group">
+          <label htmlFor="selected-month">Month</label>
+          <select
+            id="selected-month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            required
+          >
+            <option value="">Select month</option>
+            {months.map((monthName) => (
+              <option key={monthName} value={monthName}>
+                {monthName}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="savings-year">Year</label>
+          <input
+            id="savings-year"
+            type="number"
+            min="2020"
+            max="2030"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            required
+          />
+        </div>
+
         {/* Percentage Sliders */}
         <div style={{ marginBottom: '24px' }}>
           <h3 style={{ marginBottom: '16px', color: '#374151' }}>Allocation Percentages</h3>
@@ -215,36 +245,6 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
           <div className={`percentage-total ${isValidPercentage ? 'valid' : 'invalid'}`}>
             Total: {totalPercentage}%
           </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="selected-month">Month</label>
-          <select
-            id="selected-month"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            required
-          >
-            <option value="">Select month</option>
-            {months.map((monthName) => (
-              <option key={monthName} value={monthName}>
-                {monthName}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="savings-year">Year</label>
-          <input
-            id="savings-year"
-            type="number"
-            min="2020"
-            max="2030"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-          />
         </div>
 
         {/* Allocation Preview */}
