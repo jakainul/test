@@ -51,20 +51,35 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
   const trendData = useMemo(() => {
     if (savings.length === 0) return null;
 
+    // Helper function to convert month name to number
+    const getMonthNumber = (monthName: string): number => {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return months.indexOf(monthName) + 1;
+    };
+
     // Sort savings by date
     const sortedSavings = [...savings].sort((a, b) => {
-      const dateA = new Date(a.year, parseInt(a.month) - 1);
-      const dateB = new Date(b.year, parseInt(b.month) - 1);
+      const dateA = new Date(a.year, getMonthNumber(a.month) - 1);
+      const dateB = new Date(b.year, getMonthNumber(b.month) - 1);
       return dateA.getTime() - dateB.getTime();
     });
 
     // Get unique months in chronological order
     const monthsSet = new Set<string>();
     sortedSavings.forEach(saving => {
-      const monthKey = `${saving.year}-${saving.month.padStart(2, '0')}`;
+      const monthKey = `${saving.year}-${saving.month}`;
       monthsSet.add(monthKey);
     });
-    const months = Array.from(monthsSet).sort();
+    const months = Array.from(monthsSet).sort((a, b) => {
+      const [yearA, monthA] = a.split('-');
+      const [yearB, monthB] = b.split('-');
+      const dateA = new Date(parseInt(yearA), getMonthNumber(monthA) - 1);
+      const dateB = new Date(parseInt(yearB), getMonthNumber(monthB) - 1);
+      return dateA.getTime() - dateB.getTime();
+    });
 
     // Get unique categories
     const categories = Array.from(new Set(savings.map(s => s.category)));
@@ -77,7 +92,7 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
         const monthSavings = sortedSavings.filter(s => 
           s.category === category && 
           s.year === parseInt(year) && 
-          s.month.padStart(2, '0') === month
+          s.month === month
         );
         
         // Add this month's savings to cumulative total
@@ -97,11 +112,10 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
       };
     });
 
-    // Format month labels for display
+    // Format month labels for display - use month names directly
     const labels = months.map(monthKey => {
       const [year, month] = monthKey.split('-');
-      const date = new Date(parseInt(year), parseInt(month) - 1);
-      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      return `${month.substring(0, 3)} ${year}`;
     });
 
     return {
