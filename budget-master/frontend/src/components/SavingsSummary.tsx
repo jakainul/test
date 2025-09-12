@@ -1,5 +1,26 @@
 import React, { useMemo } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
 import { Savings } from '../types';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface SavingsSummaryProps {
   savings: Savings[];
@@ -14,33 +35,115 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
     }).format(amount);
   };
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryColor = (category: string) => {
     switch (category) {
       case 'ETFs':
-        return '📊';
+        return 'rgb(59, 130, 246)'; // Blue
       case 'Stocks':
-        return '📈';
+        return 'rgb(239, 68, 68)'; // Red
       case 'Savings Account':
-        return '🏦';
+        return 'rgb(5, 150, 105)'; // Green
       default:
-        return '💰';
+        return 'rgb(107, 114, 128)'; // Gray
     }
   };
 
-  const categoryTotals = useMemo(() => {
-    const totals: { [key: string]: number } = {};
-    
-    savings.forEach(saving => {
-      const category = saving.category;
-      totals[category] = (totals[category] || 0) + saving.amount;
+  const trendData = useMemo(() => {
+    if (savings.length === 0) return null;
+
+    // Sort savings by date
+    const sortedSavings = [...savings].sort((a, b) => {
+      const dateA = new Date(a.year, parseInt(a.month) - 1);
+      const dateB = new Date(b.year, parseInt(b.month) - 1);
+      return dateA.getTime() - dateB.getTime();
     });
 
-    return Object.entries(totals)
-      .map(([category, amount]) => ({ category, amount }))
-      .sort((a, b) => b.amount - a.amount);
+    // Get unique months in chronological order
+    const monthsSet = new Set<string>();
+    sortedSavings.forEach(saving => {
+      const monthKey = `${saving.year}-${saving.month.padStart(2, '0')}`;
+      monthsSet.add(monthKey);
+    });
+    const months = Array.from(monthsSet).sort();
+
+    // Get unique categories
+    const categories = Array.from(new Set(savings.map(s => s.category)));
+
+    // Build cumulative data for each category
+    const datasets = categories.map(category => {
+      let cumulativeAmount = 0;
+      const data = months.map(monthKey => {
+        const [year, month] = monthKey.split('-');
+        const monthSavings = sortedSavings.filter(s => 
+          s.category === category && 
+          s.year === parseInt(year) && 
+          s.month.padStart(2, '0') === month
+        );
+        
+        // Add this month's savings to cumulative total
+        const monthTotal = monthSavings.reduce((sum, s) => sum + s.amount, 0);
+        cumulativeAmount += monthTotal;
+        
+        return cumulativeAmount;
+      });
+
+      return {
+        label: category,
+        data,
+        borderColor: getCategoryColor(category),
+        backgroundColor: getCategoryColor(category) + '20', // Add transparency
+        tension: 0.1,
+        fill: false,
+      };
+    });
+
+    // Format month labels for display
+    const labels = months.map(monthKey => {
+      const [year, month] = monthKey.split('-');
+      const date = new Date(parseInt(year), parseInt(month) - 1);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    });
+
+    return {
+      labels,
+      datasets,
+    };
   }, [savings]);
 
   const totalSavings = savings.reduce((sum, saving) => sum + saving.amount, 0);
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value: any) {
+            return formatCurrency(value);
+          }
+        }
+      }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'index' as const,
+    },
+  };
 
   if (savings.length === 0) {
     return null;
@@ -48,7 +151,7 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
 
   return (
     <div className="card">
-      <h3 style={{ color: '#059669', marginBottom: '16px' }}>💎 Savings Summary by Category</h3>
+      <h3 style={{ color: '#059669', marginBottom: '16px' }}>💎 Savings Growth Trends by Category</h3>
       
       <div className="summary-total" style={{ 
         backgroundColor: '#f0fdf4', 
@@ -66,31 +169,11 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
         </div>
       </div>
 
-      <div className="summary-grid">
-        {categoryTotals.map(({ category, amount }) => {
-          const percentage = totalSavings > 0 ? (amount / totalSavings) * 100 : 0;
-          
-          return (
-            <div key={category} className="summary-item">
-              <div className="summary-header">
-                <span className="category-name">
-                  {getCategoryIcon(category)} {category}
-                </span>
-                <span className="category-amount">{formatCurrency(amount)}</span>
-              </div>
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill savings-progress" 
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-              <div className="percentage">
-                {percentage.toFixed(1)}% of total savings
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {trendData && (
+        <div className="chart-container">
+          <Line data={trendData} options={chartOptions} />
+        </div>
+      )}
     </div>
   );
 };

@@ -408,3 +408,14 @@ code {
   margin: 40px 0;
   border-radius: 1px;
 }
+
+/* Chart container styles */
+.chart-container {
+  position: relative;
+  height: 400px;
+  margin-bottom: 20px;
+}
+
+.chart-container canvas {
+  max-height: 400px !important;
+}
