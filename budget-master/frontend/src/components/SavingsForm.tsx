@@ -7,13 +7,12 @@ interface SavingsFormProps {
 }
 
 const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) => {
-  const [totalAmount, setTotalAmount] = useState('');
+  const [monthlyAmount, setMonthlyAmount] = useState('');
   const [description, setDescription] = useState('');
   const [etfPercentage, setEtfPercentage] = useState(40);
   const [stockPercentage, setStockPercentage] = useState(30);
   const [savingsPercentage, setSavingsPercentage] = useState(30);
-  const [monthlyDistribution, setMonthlyDistribution] = useState(1);
-  const [startMonth, setStartMonth] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -24,7 +23,6 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
 
   // Auto-adjust percentages to sum to 100
   const adjustPercentages = (changedSlider: 'etf' | 'stock' | 'savings', newValue: number) => {
-    const total = etfPercentage + stockPercentage + savingsPercentage;
     const remaining = 100 - newValue;
     
     if (changedSlider === 'etf') {
@@ -73,16 +71,12 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
   const isValidPercentage = Math.abs(totalPercentage - 100) < 1;
 
   const calculateAmounts = () => {
-    const total = parseFloat(totalAmount) || 0;
-    const monthlyTotal = total / monthlyDistribution;
+    const monthly = parseFloat(monthlyAmount) || 0;
     
     return {
-      totalETF: (total * etfPercentage) / 100,
-      totalStock: (total * stockPercentage) / 100,
-      totalSavings: (total * savingsPercentage) / 100,
-      monthlyETF: (monthlyTotal * etfPercentage) / 100,
-      monthlyStock: (monthlyTotal * stockPercentage) / 100,
-      monthlySavings: (monthlyTotal * savingsPercentage) / 100,
+      monthlyETF: (monthly * etfPercentage) / 100,
+      monthlyStock: (monthly * stockPercentage) / 100,
+      monthlySavings: (monthly * savingsPercentage) / 100,
     };
   };
 
@@ -91,7 +85,7 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!totalAmount || !startMonth || !year) {
+    if (!monthlyAmount || !selectedMonth || !year) {
       showToast('Please fill in all required fields', 'error');
       return;
     }
@@ -101,36 +95,34 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
       return;
     }
 
-    if (parseFloat(totalAmount) <= 0) {
-      showToast('Total amount must be greater than 0', 'error');
+    if (parseFloat(monthlyAmount) <= 0) {
+      showToast('Monthly amount must be greater than 0', 'error');
       return;
     }
 
     setIsSubmitting(true);
     try {
       const result = await addSavingsAllocation({
-        totalAmount: parseFloat(totalAmount),
+        monthlyAmount: parseFloat(monthlyAmount),
         description,
         etfPercentage,
         stockPercentage,
         savingsPercentage,
-        monthlyDistribution,
-        startMonth,
+        selectedMonth,
         year: parseInt(year)
       });
       
       const savingsDesc = description ? ` for ${description}` : '';
-      setTotalAmount('');
+      setMonthlyAmount('');
       setDescription('');
       setEtfPercentage(40);
       setStockPercentage(30);
       setSavingsPercentage(30);
-      setMonthlyDistribution(1);
-      setStartMonth('');
+      setSelectedMonth('');
       setYear(new Date().getFullYear().toString());
       
       showToast(
-        `Successfully created ${result.entries.length} savings entries totaling €${parseFloat(totalAmount).toFixed(2)}${savingsDesc}!`, 
+        `Successfully created ${result.entries.length} savings entries for ${selectedMonth} ${year}${savingsDesc}!`, 
         'success'
       );
       onSavingsAdded();
@@ -147,15 +139,15 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
       <h2 style={{ marginBottom: '20px', color: '#059669' }}>Add Savings Allocation</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="total-amount">Total Amount (€)</label>
+          <label htmlFor="monthly-amount">Monthly Amount (€)</label>
           <input
-            id="total-amount"
+            id="monthly-amount"
             type="number"
             step="0.01"
             min="0"
-            value={totalAmount}
-            onChange={(e) => setTotalAmount(e.target.value)}
-            placeholder="Enter total savings amount"
+            value={monthlyAmount}
+            onChange={(e) => setMonthlyAmount(e.target.value)}
+            placeholder="Enter monthly savings amount"
             required
           />
         </div>
@@ -225,35 +217,15 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
           </div>
         </div>
 
-        {/* Monthly Distribution */}
         <div className="form-group">
-          <label htmlFor="monthly-distribution">Distribute over months</label>
-          <div className="slider-container">
-            <div className="slider-header">
-              <span className="slider-label">Number of months</span>
-              <span className="slider-value">{monthlyDistribution} month{monthlyDistribution !== 1 ? 's' : ''}</span>
-            </div>
-            <input
-              id="monthly-distribution"
-              type="range"
-              min="1"
-              max="12"
-              value={monthlyDistribution}
-              onChange={(e) => setMonthlyDistribution(parseInt(e.target.value))}
-              className="slider"
-            />
-          </div>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="start-month">Starting Month</label>
+          <label htmlFor="selected-month">Month</label>
           <select
-            id="start-month"
-            value={startMonth}
-            onChange={(e) => setStartMonth(e.target.value)}
+            id="selected-month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
             required
           >
-            <option value="">Select starting month</option>
+            <option value="">Select month</option>
             {months.map((monthName) => (
               <option key={monthName} value={monthName}>
                 {monthName}
@@ -276,43 +248,23 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
         </div>
 
         {/* Allocation Preview */}
-        {totalAmount && parseFloat(totalAmount) > 0 && (
+        {monthlyAmount && parseFloat(monthlyAmount) > 0 && (
           <div className="allocation-preview">
-            <div className="allocation-title">Allocation Preview</div>
+            <div className="allocation-title">Monthly Allocation Preview</div>
             <div className="allocation-grid">
               <div className="allocation-item">
                 <div className="allocation-category">ETFs</div>
-                <div className="allocation-amount">€{amounts.totalETF.toFixed(2)}</div>
+                <div className="allocation-amount">€{amounts.monthlyETF.toFixed(2)}</div>
               </div>
               <div className="allocation-item">
                 <div className="allocation-category">Stocks</div>
-                <div className="allocation-amount">€{amounts.totalStock.toFixed(2)}</div>
+                <div className="allocation-amount">€{amounts.monthlyStock.toFixed(2)}</div>
               </div>
               <div className="allocation-item">
                 <div className="allocation-category">Savings</div>
-                <div className="allocation-amount">€{amounts.totalSavings.toFixed(2)}</div>
+                <div className="allocation-amount">€{amounts.monthlySavings.toFixed(2)}</div>
               </div>
             </div>
-            
-            {monthlyDistribution > 1 && (
-              <div className="monthly-breakdown">
-                <div className="monthly-breakdown-title">Monthly Breakdown</div>
-                <div className="monthly-breakdown-grid">
-                  <div className="monthly-breakdown-item">
-                    ETFs<br />
-                    <span className="monthly-breakdown-amount">€{amounts.monthlyETF.toFixed(2)}/month</span>
-                  </div>
-                  <div className="monthly-breakdown-item">
-                    Stocks<br />
-                    <span className="monthly-breakdown-amount">€{amounts.monthlyStock.toFixed(2)}/month</span>
-                  </div>
-                  <div className="monthly-breakdown-item">
-                    Savings<br />
-                    <span className="monthly-breakdown-amount">€{amounts.monthlySavings.toFixed(2)}/month</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
         

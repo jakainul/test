@@ -176,18 +176,17 @@ app.post('/api/savings', (req, res) => {
 // Add bulk savings entries from allocation
 app.post('/api/savings/allocation', (req, res) => {
   const { 
-    totalAmount, 
+    monthlyAmount, 
     description, 
     etfPercentage, 
     stockPercentage, 
     savingsPercentage, 
-    monthlyDistribution,
-    startMonth,
+    selectedMonth,
     year 
   } = req.body;
   
-  if (!totalAmount || etfPercentage === undefined || stockPercentage === undefined || 
-      savingsPercentage === undefined || !monthlyDistribution || !startMonth || !year) {
+  if (!monthlyAmount || etfPercentage === undefined || stockPercentage === undefined || 
+      savingsPercentage === undefined || !selectedMonth || !year) {
     res.status(400).json({ error: 'All allocation fields are required' });
     return;
   }
@@ -203,55 +202,48 @@ app.post('/api/savings/allocation', (req, res) => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const startMonthIndex = months.indexOf(startMonth);
-  if (startMonthIndex === -1) {
-    res.status(400).json({ error: 'Invalid start month' });
+  if (!months.includes(selectedMonth)) {
+    res.status(400).json({ error: 'Invalid selected month' });
     return;
   }
 
-  // Calculate monthly amounts for each category
-  const monthlyTotal = totalAmount / monthlyDistribution;
-  const monthlyETF = (monthlyTotal * etfPercentage) / 100;
-  const monthlyStock = (monthlyTotal * stockPercentage) / 100;
-  const monthlySavings = (monthlyTotal * savingsPercentage) / 100;
+  // Calculate amounts for each category from the monthly total
+  const monthlyETF = (monthlyAmount * etfPercentage) / 100;
+  const monthlyStock = (monthlyAmount * stockPercentage) / 100;
+  const monthlySavingsAmount = (monthlyAmount * savingsPercentage) / 100;
 
-  // Prepare all insertions
+  // Prepare all insertions for the selected month
   const insertions = [];
-  for (let i = 0; i < monthlyDistribution; i++) {
-    const currentMonthIndex = (startMonthIndex + i) % 12;
-    const currentMonth = months[currentMonthIndex];
-    const currentYear = year + Math.floor((startMonthIndex + i) / 12);
 
-    // Only add entries for categories with non-zero percentages
-    if (etfPercentage > 0) {
-      insertions.push({
-        amount: monthlyETF,
-        description: description || '',
-        category: 'ETFs',
-        month: currentMonth,
-        year: currentYear
-      });
-    }
-    
-    if (stockPercentage > 0) {
-      insertions.push({
-        amount: monthlyStock,
-        description: description || '',
-        category: 'Stocks',
-        month: currentMonth,
-        year: currentYear
-      });
-    }
-    
-    if (savingsPercentage > 0) {
-      insertions.push({
-        amount: monthlySavings,
-        description: description || '',
-        category: 'Savings Account',
-        month: currentMonth,
-        year: currentYear
-      });
-    }
+  // Only add entries for categories with non-zero percentages
+  if (etfPercentage > 0) {
+    insertions.push({
+      amount: monthlyETF,
+      description: description || '',
+      category: 'ETFs',
+      month: selectedMonth,
+      year: year
+    });
+  }
+  
+  if (stockPercentage > 0) {
+    insertions.push({
+      amount: monthlyStock,
+      description: description || '',
+      category: 'Stocks',
+      month: selectedMonth,
+      year: year
+    });
+  }
+  
+  if (savingsPercentage > 0) {
+    insertions.push({
+      amount: monthlySavingsAmount,
+      description: description || '',
+      category: 'Savings Account',
+      month: selectedMonth,
+      year: year
+    });
   }
 
   // Execute all insertions in a transaction
@@ -293,15 +285,16 @@ app.post('/api/savings/allocation', (req, res) => {
                   res.status(500).json({ error: commitErr.message });
                 } else {
                   res.json({
-                    message: `Successfully created ${results.length} savings entries`,
+                    message: `Successfully created ${results.length} savings entries for ${selectedMonth} ${year}`,
                     entries: results,
                     summary: {
-                      totalAmount,
-                      monthlyDistribution,
+                      monthlyAmount,
+                      selectedMonth,
+                      year,
                       categoriesCreated: {
-                        ETFs: etfPercentage > 0 ? monthlyDistribution : 0,
-                        Stocks: stockPercentage > 0 ? monthlyDistribution : 0,
-                        'Savings Account': savingsPercentage > 0 ? monthlyDistribution : 0
+                        ETFs: etfPercentage > 0 ? 1 : 0,
+                        Stocks: stockPercentage > 0 ? 1 : 0,
+                        'Savings Account': savingsPercentage > 0 ? 1 : 0
                       }
                     }
                   });
