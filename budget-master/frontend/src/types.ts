@@ -31,3 +31,14 @@ export interface Savings {
   year: number;
   created_at: string;
 }
+
+export interface SavingsAllocation {
+  totalAmount: number;
+  description: string;
+  etfPercentage: number;
+  stockPercentage: number;
+  savingsPercentage: number;
+  monthlyDistribution: number; // number of months to distribute over
+  startMonth: string;
+  year: number;
+}

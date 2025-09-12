@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Salary, Expense, BudgetSummary, Savings } from './types';
+import { Salary, Expense, BudgetSummary, Savings, SavingsAllocation } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
@@ -45,6 +45,11 @@ export const getSavings = async (): Promise<Savings[]> => {
 
 export const addSavings = async (savings: Omit<Savings, 'id' | 'created_at'>): Promise<Savings> => {
   const response = await api.post('/savings', savings);
+  return response.data;
+};
+
+export const addSavingsAllocation = async (allocation: SavingsAllocation): Promise<any> => {
+  const response = await api.post('/savings/allocation', allocation);
   return response.data;
 };
 

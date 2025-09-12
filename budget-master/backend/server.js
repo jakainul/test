@@ -29,6 +29,7 @@ app.get('/', (req, res) => {
       'DELETE /api/expenses/:id - Delete expense',
       'GET /api/savings - Get all savings',
       'POST /api/savings - Add new savings entry',
+      'POST /api/savings/allocation - Add savings entries from percentage allocation',
       'DELETE /api/savings/:id - Delete savings entry',
       'GET /api/budget-summary - Get budget summary',
       'GET /health - Health check'
@@ -170,6 +171,148 @@ app.post('/api/savings', (req, res) => {
       });
     }
   );
+});
+
+// Add bulk savings entries from allocation
+app.post('/api/savings/allocation', (req, res) => {
+  const { 
+    totalAmount, 
+    description, 
+    etfPercentage, 
+    stockPercentage, 
+    savingsPercentage, 
+    monthlyDistribution,
+    startMonth,
+    year 
+  } = req.body;
+  
+  if (!totalAmount || etfPercentage === undefined || stockPercentage === undefined || 
+      savingsPercentage === undefined || !monthlyDistribution || !startMonth || !year) {
+    res.status(400).json({ error: 'All allocation fields are required' });
+    return;
+  }
+
+  // Validate percentages sum to 100
+  if (Math.abs((etfPercentage + stockPercentage + savingsPercentage) - 100) > 0.01) {
+    res.status(400).json({ error: 'Percentages must sum to 100%' });
+    return;
+  }
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const startMonthIndex = months.indexOf(startMonth);
+  if (startMonthIndex === -1) {
+    res.status(400).json({ error: 'Invalid start month' });
+    return;
+  }
+
+  // Calculate monthly amounts for each category
+  const monthlyTotal = totalAmount / monthlyDistribution;
+  const monthlyETF = (monthlyTotal * etfPercentage) / 100;
+  const monthlyStock = (monthlyTotal * stockPercentage) / 100;
+  const monthlySavings = (monthlyTotal * savingsPercentage) / 100;
+
+  // Prepare all insertions
+  const insertions = [];
+  for (let i = 0; i < monthlyDistribution; i++) {
+    const currentMonthIndex = (startMonthIndex + i) % 12;
+    const currentMonth = months[currentMonthIndex];
+    const currentYear = year + Math.floor((startMonthIndex + i) / 12);
+
+    // Only add entries for categories with non-zero percentages
+    if (etfPercentage > 0) {
+      insertions.push({
+        amount: monthlyETF,
+        description: description || '',
+        category: 'ETFs',
+        month: currentMonth,
+        year: currentYear
+      });
+    }
+    
+    if (stockPercentage > 0) {
+      insertions.push({
+        amount: monthlyStock,
+        description: description || '',
+        category: 'Stocks',
+        month: currentMonth,
+        year: currentYear
+      });
+    }
+    
+    if (savingsPercentage > 0) {
+      insertions.push({
+        amount: monthlySavings,
+        description: description || '',
+        category: 'Savings Account',
+        month: currentMonth,
+        year: currentYear
+      });
+    }
+  }
+
+  // Execute all insertions in a transaction
+  db.serialize(() => {
+    db.run('BEGIN TRANSACTION');
+    
+    let completed = 0;
+    let hasError = false;
+    const results = [];
+
+    if (insertions.length === 0) {
+      db.run('ROLLBACK');
+      res.status(400).json({ error: 'No valid entries to create' });
+      return;
+    }
+
+    insertions.forEach((insertion, index) => {
+      db.run(
+        'INSERT INTO savings (amount, description, category, month, year) VALUES (?, ?, ?, ?, ?)',
+        [insertion.amount, insertion.description, insertion.category, insertion.month, insertion.year],
+        function(err) {
+          if (err && !hasError) {
+            hasError = true;
+            db.run('ROLLBACK');
+            res.status(500).json({ error: err.message });
+            return;
+          }
+          
+          if (!hasError) {
+            results.push({
+              id: this.lastID,
+              ...insertion
+            });
+            
+            completed++;
+            if (completed === insertions.length) {
+              db.run('COMMIT', (commitErr) => {
+                if (commitErr) {
+                  res.status(500).json({ error: commitErr.message });
+                } else {
+                  res.json({
+                    message: `Successfully created ${results.length} savings entries`,
+                    entries: results,
+                    summary: {
+                      totalAmount,
+                      monthlyDistribution,
+                      categoriesCreated: {
+                        ETFs: etfPercentage > 0 ? monthlyDistribution : 0,
+                        Stocks: stockPercentage > 0 ? monthlyDistribution : 0,
+                        'Savings Account': savingsPercentage > 0 ? monthlyDistribution : 0
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
+      );
+    });
+  });
 });
 
 // Delete savings entry
