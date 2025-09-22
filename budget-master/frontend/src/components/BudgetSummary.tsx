@@ -23,10 +23,6 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ summary }) => {
           <div className="total-amount">{formatCurrency(summary.totalSalaries)}</div>
           <div className="total-label">Total Salaries</div>
         </div>
-        <div className="total-card total-expenses">
-          <div className="total-amount">{formatCurrency(summary.totalExpenses)}</div>
-          <div className="total-label">Total Expenses</div>
-        </div>
       </div>
       
       <div className="budget-summary">
@@ -39,7 +35,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ summary }) => {
           {formatCurrency(summary.balance)}
         </div>
         <div className="budget-label">
-          {isPositive ? 'Available Budget' : 'Budget Deficit'}
+          Available Budget
         </div>
       </div>
     </div>

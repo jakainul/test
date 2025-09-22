@@ -24,9 +24,6 @@ app.get('/', (req, res) => {
       'GET /api/salaries - Get all salaries',
       'POST /api/salaries - Add new salary',
       'DELETE /api/salaries/:id - Delete salary',
-      'GET /api/expenses - Get all expenses',
-      'POST /api/expenses - Add new expense',
-      'DELETE /api/expenses/:id - Delete expense',
       'GET /api/savings - Get all savings',
       'POST /api/savings - Add new savings entry',
       'POST /api/savings/allocation - Add savings entries from percentage allocation',
@@ -85,46 +82,6 @@ app.post('/api/salaries', (req, res) => {
   );
 });
 
-// Get all expenses
-app.get('/api/expenses', (req, res) => {
-  db.all('SELECT * FROM expenses ORDER BY created_at DESC', (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
-});
-
-// Add new expense
-app.post('/api/expenses', (req, res) => {
-  const { amount, description, category, month, year } = req.body;
-  
-  if (!amount || !month || !year) {
-    res.status(400).json({ error: 'Amount, month, and year are required' });
-    return;
-  }
-
-  db.run(
-    'INSERT INTO expenses (amount, description, category, month, year) VALUES (?, ?, ?, ?, ?)',
-    [amount, description || '', category || 'Other', month, year],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({
-        id: this.lastID,
-        amount,
-        description,
-        category,
-        month,
-        year,
-        message: 'Expense added successfully'
-      });
-    }
-  );
-});
 
 // Get all savings
 app.get('/api/savings', (req, res) => {
@@ -325,34 +282,20 @@ app.delete('/api/savings/:id', (req, res) => {
   });
 });
 
-// Get budget summary (total salaries - total expenses)
+// Get budget summary (total salaries)
 app.get('/api/budget-summary', (req, res) => {
-  const getTotalSalaries = new Promise((resolve, reject) => {
-    db.get('SELECT SUM(amount) as total FROM salaries', (err, row) => {
-      if (err) reject(err);
-      else resolve(row.total || 0);
-    });
-  });
-
-  const getTotalExpenses = new Promise((resolve, reject) => {
-    db.get('SELECT SUM(amount) as total FROM expenses', (err, row) => {
-      if (err) reject(err);
-      else resolve(row.total || 0);
-    });
-  });
-
-  Promise.all([getTotalSalaries, getTotalExpenses])
-    .then(([totalSalaries, totalExpenses]) => {
-      const balance = totalSalaries - totalExpenses;
-      res.json({
-        totalSalaries,
-        totalExpenses,
-        balance
-      });
-    })
-    .catch(err => {
+  db.get('SELECT SUM(amount) as total FROM salaries', (err, row) => {
+    if (err) {
       res.status(500).json({ error: err.message });
+      return;
+    }
+    
+    const totalSalaries = row.total || 0;
+    res.json({
+      totalSalaries,
+      balance: totalSalaries
     });
+  });
 });
 
 // Delete salary
@@ -372,22 +315,6 @@ app.delete('/api/salaries/:id', (req, res) => {
   });
 });
 
-// Delete expense
-app.delete('/api/expenses/:id', (req, res) => {
-  const { id } = req.params;
-  
-  db.run('DELETE FROM expenses WHERE id = ?', [id], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
-      res.status(404).json({ error: 'Expense not found' });
-      return;
-    }
-    res.json({ message: 'Expense deleted successfully' });
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`Budget Master backend server running on port ${PORT}`);

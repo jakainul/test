@@ -1,15 +1,15 @@
 # Budget Master 💰
 
-A simple and elegant React application for tracking monthly salaries and expenses with automatic budget calculation.
+A simple and elegant React application for tracking monthly salaries and savings with automatic budget calculation.
 
 ## Features
 
 - **Add Monthly Salaries**: Input your monthly salary in euros with month and year selection
-- **Add Monthly Expenses**: Track your expenses with optional descriptions
-- **Automatic Budget Calculation**: View your total salaries minus total expenses in real-time
+- **Add Savings & Investments**: Track your ETFs, stocks, and savings account contributions
+- **Automatic Budget Calculation**: View your total salaries as your available budget
 - **Data Persistence**: All data is stored in a SQLite database
 - **Modern UI**: Clean and responsive design with beautiful gradients and cards
-- **Delete Entries**: Remove salary or expense entries as needed
+- **Delete Entries**: Remove salary or savings entries as needed
 
 ## Technology Stack
 
@@ -147,9 +147,9 @@ If you get an error that port 3000 or 5001 is already in use, you can:
 ### Using the Application
 
 1. **Add Salaries**: Use the "Add Monthly Salary" form to input your monthly income
-2. **Add Expenses**: Use the "Add Monthly Expense" form to track your spending
-3. **View Budget**: The budget summary at the top shows your total income, expenses, and remaining balance
-4. **Manage Entries**: View and delete individual salary and expense entries in the lists below
+2. **Add Savings**: Use the savings forms to track your investments and savings contributions
+3. **View Budget**: The budget summary at the top shows your total salaries as your available budget
+4. **Manage Entries**: View and delete individual salary and savings entries in the lists below
 
 ### Development Mode
 
@@ -183,9 +183,6 @@ The backend provides the following REST API endpoints:
 - `GET /api/salaries` - Get all salaries
 - `POST /api/salaries` - Add a new salary
 - `DELETE /api/salaries/:id` - Delete a salary
-- `GET /api/expenses` - Get all expenses  
-- `POST /api/expenses` - Add a new expense
-- `DELETE /api/expenses/:id` - Delete an expense
 - `GET /api/budget-summary` - Get budget summary (totals and balance)
 
 ## License

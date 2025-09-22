@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Salary, Expense, BudgetSummary, Savings, SavingsAllocation } from './types';
+import { Salary, BudgetSummary, Savings, SavingsAllocation } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
@@ -22,20 +22,6 @@ export const deleteSalary = async (id: number): Promise<void> => {
   await api.delete(`/salaries/${id}`);
 };
 
-// Expense API calls
-export const getExpenses = async (): Promise<Expense[]> => {
-  const response = await api.get('/expenses');
-  return response.data;
-};
-
-export const addExpense = async (expense: Omit<Expense, 'id' | 'created_at'>): Promise<Expense> => {
-  const response = await api.post('/expenses', expense);
-  return response.data;
-};
-
-export const deleteExpense = async (id: number): Promise<void> => {
-  await api.delete(`/expenses/${id}`);
-};
 
 // Savings API calls
 export const getSavings = async (): Promise<Savings[]> => {
