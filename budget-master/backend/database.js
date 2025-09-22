@@ -20,44 +20,24 @@ const initDatabase = () => {
         )
       `);
 
-      // Create expenses table
+      // Create savings table
       db.run(`
-        CREATE TABLE IF NOT EXISTS expenses (
+        CREATE TABLE IF NOT EXISTS savings (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           amount REAL NOT NULL,
           description TEXT,
-          category TEXT DEFAULT 'Other',
+          category TEXT NOT NULL CHECK(category IN ('ETFs', 'Stocks', 'Savings Account')),
           month TEXT NOT NULL,
           year INTEGER NOT NULL,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
-      `, (err) => {
-        if (err) {
-          reject(err);
+      `, (savingsErr) => {
+        if (savingsErr) {
+          console.error('Error creating savings table:', savingsErr);
+          reject(savingsErr);
         } else {
-          // Add category column to existing table if it doesn't exist
-          db.run(`ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'Other'`, (alterErr) => {
-            // Ignore error if column already exists
-            
-            // Create savings table
-            db.run(`
-              CREATE TABLE IF NOT EXISTS savings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                amount REAL NOT NULL,
-                description TEXT,
-                category TEXT NOT NULL CHECK(category IN ('ETFs', 'Stocks', 'Savings Account')),
-                month TEXT NOT NULL,
-                year INTEGER NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-              )
-            `, (savingsErr) => {
-              if (savingsErr) {
-                console.error('Error creating savings table:', savingsErr);
-              }
-              console.log('Database initialized successfully');
-              resolve();
-            });
-          });
+          console.log('Database initialized successfully');
+          resolve();
         }
       });
     });

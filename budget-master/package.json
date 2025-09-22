@@ -1,7 +1,7 @@
 {
   "name": "budget-master",
   "version": "1.0.0",
-  "description": "A simple React application for tracking monthly salaries and expenses",
+  "description": "A simple React application for tracking monthly salaries and savings",
   "main": "index.js",
   "scripts": {
     "install-all": "npm run install-backend && npm run install-frontend",
