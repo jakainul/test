@@ -409,15 +409,28 @@ code {
   border-radius: 1px;
 }
 
-/* Chart container styles */
+/* Enhanced chart container styles */
 .chart-container {
   position: relative;
-  height: 400px;
-  margin-bottom: 20px;
+  height: 500px; /* Increased height for better visibility */
+  margin: 20px 0;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 8px;
 }
 
 .chart-container canvas {
-  max-height: 400px !important;
+  border-radius: 6px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive adjustments for projection charts */
+@media (max-width: 768px) {
+  .chart-container {
+    height: 400px;
+    padding: 5px;
+  }
 }
 
 /* Slider styles */
