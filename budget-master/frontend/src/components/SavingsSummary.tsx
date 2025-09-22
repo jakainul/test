@@ -209,11 +209,13 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
       });
     });
 
-    // Extend Savings Account with minimal growth (1%)
+    // Keep Savings Account as historical data only (no automatic projections)
     const savingsDataset = historicalDatasets.find(ds => ds.category === 'Savings Account');
-    if (savingsDataset && savingsDataset.finalValue > 0) {
-      const savingsProjections = calculateProjections(savingsDataset.finalValue, 0.01, 240);
-      savingsDataset.data = [...savingsDataset.data.filter(val => val !== null), ...savingsProjections];
+    if (savingsDataset) {
+      // Remove any null values and keep only historical data
+      savingsDataset.data = savingsDataset.data.filter(val => val !== null);
+      // Extend with nulls for future months to maintain chart structure
+      savingsDataset.data = [...savingsDataset.data, ...new Array(240).fill(null)];
       savingsDataset.label = 'Savings Account';
     }
 
