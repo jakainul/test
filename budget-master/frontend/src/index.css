@@ -844,7 +844,7 @@ code {
   margin-top: 8px;
 }
 
-/* Stock List */
+/* Stock List - Table Based */
 .stock-list-container {
   margin-top: 20px;
 }
@@ -882,10 +882,219 @@ code {
   cursor: not-allowed;
 }
 
-.stock-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+.stock-table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: auto;
+  max-height: 600px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.stock-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e1e5e9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.stock-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  border-right: 1px solid #e1e5e9;
+  white-space: nowrap;
+}
+
+.stock-table th:last-child {
+  border-right: none;
+}
+
+.stock-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.stock-table th.sortable:hover {
+  background-color: #f3f4f6;
+}
+
+.stock-table th.sorted {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.stock-table-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stock-table-sort-icon {
+  font-size: 12px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.stock-table th.sortable:hover .stock-table-sort-icon {
+  opacity: 0.7;
+}
+
+.stock-table th.sorted .stock-table-sort-icon {
+  opacity: 1;
+}
+
+.stock-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s;
+}
+
+.stock-table tbody tr:hover {
+  background-color: #fafbfc;
+}
+
+.stock-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.stock-table tbody tr:nth-child(even):hover {
+  background-color: #f3f4f6;
+}
+
+.stock-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.stock-table tbody tr.stock-row-loading {
+  opacity: 0.6;
+}
+
+.stock-table tbody tr.stock-row-error {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.stock-table tbody tr.stock-row-error:hover {
+  background-color: #fee2e2;
+}
+
+.stock-table td {
+  padding: 12px 16px;
+  color: #374151;
+  font-size: 14px;
+  border-right: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.stock-table td:last-child {
+  border-right: none;
+}
+
+.stock-row-ticker-cell {
+  min-width: 120px;
+}
+
+.stock-row-ticker {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.stock-row-company {
+  font-size: 12px;
+  color: #6b7280;
+  display: block;
+}
+
+.stock-row-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.stock-row-change {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.stock-row-positive {
+  color: #10b981;
+  background-color: #d1fae5;
+}
+
+.stock-row-negative {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.stock-row-neutral {
+  color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+.stock-row-dividend {
+  font-size: 14px;
+  font-weight: 500;
+  color: #3b82f6;
+}
+
+.stock-row-timestamp {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.stock-row-actions {
+  text-align: center;
+}
+
+.stock-row-delete-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stock-row-delete-btn:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+.stock-row-loading-cell {
+  text-align: center;
+  padding: 12px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.stock-row-error-cell {
+  color: #ef4444;
+  font-size: 13px;
 }
 
 .empty-state {
@@ -904,162 +1113,9 @@ code {
   color: #9ca3af;
 }
 
-/* Stock Card */
-.stock-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e1e5e9;
-  transition: all 0.2s;
-}
 
-.stock-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
-}
-
-.stock-card.loading {
-  opacity: 0.7;
-}
-
-.stock-card.error {
-  border-color: #fecaca;
-  background-color: #fef2f2;
-}
-
-.stock-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #f3f4f6;
-  padding-bottom: 12px;
-}
-
-.stock-title h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 4px;
-}
-
-.company-name {
-  font-size: 13px;
-  color: #6b7280;
-  display: block;
-  margin-top: 4px;
-}
-
-.btn-delete-small {
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  font-size: 28px;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.btn-delete-small:hover {
-  background-color: #fef2f2;
-  color: #ef4444;
-}
-
-.stock-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.stock-price {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1f2937;
-}
-
-.stock-change {
-  font-size: 16px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
-  width: fit-content;
-}
-
-.stock-positive {
-  color: #10b981;
-  background-color: #d1fae5;
-}
-
-.stock-negative {
-  color: #ef4444;
-  background-color: #fee2e2;
-}
-
-.stock-neutral {
-  color: #6b7280;
-  background-color: #f3f4f6;
-}
-
-.stock-dividend {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  padding: 8px 12px;
-  background-color: #eff6ff;
-  border-radius: 6px;
-}
-
-.stock-dividend .label {
-  font-size: 13px;
-  color: #3b82f6;
-  font-weight: 500;
-}
-
-.stock-dividend .value {
-  font-size: 14px;
-  color: #1e40af;
-  font-weight: 600;
-}
-
-.stock-timestamp {
-  font-size: 12px;
-  color: #9ca3af;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid #f3f4f6;
-}
-
-.loading-spinner {
-  text-align: center;
-  padding: 20px;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.stock-error {
-  color: #ef4444;
-  font-size: 14px;
-  padding: 12px;
-  background-color: #fef2f2;
-  border-radius: 6px;
-  border: 1px solid #fecaca;
-}
-
-/* Mobile responsive for stock cards */
+/* Mobile responsive for stock table */
 @media (max-width: 768px) {
-  .stock-list {
-    grid-template-columns: 1fr;
-  }
-
   .stock-form .form-row {
     flex-direction: column;
   }
@@ -1076,5 +1132,37 @@ code {
 
   .btn-refresh {
     width: 100%;
+  }
+
+  .stock-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .stock-table {
+    min-width: 600px;
+  }
+
+  .stock-table th,
+  .stock-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .stock-row-ticker {
+    font-size: 14px;
+  }
+
+  .stock-row-company {
+    font-size: 11px;
+  }
+
+  .stock-row-price {
+    font-size: 16px;
+  }
+
+  .stock-row-change {
+    font-size: 12px;
+    padding: 3px 6px;
   }
 }
