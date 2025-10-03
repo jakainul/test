@@ -8,7 +8,7 @@ export interface Salary {
 
 export interface BudgetSummary {
   totalSalaries: number;
-  balance: number;
+  balance?: number;
 }
 
 export interface Savings {
