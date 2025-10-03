@@ -1,7 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { db, initDatabase } = require('./database');
+const stockService = require('./services/alphaVantageService');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -37,6 +39,11 @@ app.get('/', (req, res) => {
       'POST /api/savings/allocation - Add savings entries from percentage allocation',
       'DELETE /api/savings/:id - Delete savings entry',
       'GET /api/budget-summary - Get budget summary',
+      'GET /api/stocks/watchlist - Get all stock tickers in watchlist',
+      'POST /api/stocks/watchlist - Add ticker to watchlist',
+      'DELETE /api/stocks/watchlist/:ticker - Remove ticker from watchlist',
+      'GET /api/stocks/quote/:ticker - Get real-time quote for a ticker',
+      'GET /api/stocks/data/:ticker - Get complete stock data (quote + dividend)',
       'GET /health - Health check'
     ]
   });
@@ -320,6 +327,128 @@ app.delete('/api/salaries/:id', (req, res) => {
     }
     res.json({ message: 'Salary deleted successfully' });
   });
+});
+
+// Stock Watchlist Routes
+
+// Get all tickers in watchlist
+app.get('/api/stocks/watchlist', (req, res) => {
+  db.all('SELECT * FROM stock_watchlist ORDER BY added_at DESC', (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+// Add ticker to watchlist
+app.post('/api/stocks/watchlist', async (req, res) => {
+  const { ticker } = req.body;
+  
+  if (!ticker) {
+    res.status(400).json({ error: 'Ticker symbol is required' });
+    return;
+  }
+
+  // Validate ticker format (1-5 uppercase letters)
+  const tickerUpper = ticker.toUpperCase().trim();
+  if (!/^[A-Z]{1,5}$/.test(tickerUpper)) {
+    res.status(400).json({ error: 'Invalid ticker format. Use 1-5 letters only.' });
+    return;
+  }
+
+  try {
+    // Validate ticker exists via Alpha Vantage
+    const isValid = await stockService.validateTicker(tickerUpper);
+    
+    if (!isValid) {
+      res.status(400).json({ error: 'Invalid ticker symbol. Ticker not found.' });
+      return;
+    }
+
+    // Add to database
+    db.run(
+      'INSERT INTO stock_watchlist (ticker) VALUES (?)',
+      [tickerUpper],
+      function(err) {
+        if (err) {
+          if (err.message.includes('UNIQUE')) {
+            res.status(400).json({ error: 'Ticker already in watchlist' });
+          } else {
+            res.status(500).json({ error: err.message });
+          }
+          return;
+        }
+        res.json({
+          id: this.lastID,
+          ticker: tickerUpper,
+          message: 'Ticker added to watchlist successfully'
+        });
+      }
+    );
+  } catch (error) {
+    if (error.message === 'INVALID_TICKER') {
+      res.status(400).json({ error: 'Invalid ticker symbol. Ticker not found.' });
+    } else if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
+      res.status(429).json({ error: 'API rate limit exceeded. Please try again in a minute.' });
+    } else {
+      res.status(500).json({ error: 'Failed to validate ticker. Please try again.' });
+    }
+  }
+});
+
+// Remove ticker from watchlist
+app.delete('/api/stocks/watchlist/:ticker', (req, res) => {
+  const { ticker } = req.params;
+  
+  db.run('DELETE FROM stock_watchlist WHERE ticker = ?', [ticker.toUpperCase()], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (this.changes === 0) {
+      res.status(404).json({ error: 'Ticker not found in watchlist' });
+      return;
+    }
+    res.json({ message: 'Ticker removed from watchlist successfully' });
+  });
+});
+
+// Get real-time quote for a ticker
+app.get('/api/stocks/quote/:ticker', async (req, res) => {
+  const { ticker } = req.params;
+  
+  try {
+    const quote = await stockService.getGlobalQuote(ticker);
+    res.json(quote);
+  } catch (error) {
+    if (error.message === 'INVALID_TICKER') {
+      res.status(404).json({ error: 'Ticker not found' });
+    } else if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
+      res.status(429).json({ error: 'API rate limit exceeded. Please try again in a minute.' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch stock quote' });
+    }
+  }
+});
+
+// Get complete stock data (quote + dividend info)
+app.get('/api/stocks/data/:ticker', async (req, res) => {
+  const { ticker } = req.params;
+  
+  try {
+    const data = await stockService.getStockData(ticker);
+    res.json(data);
+  } catch (error) {
+    if (error.message === 'INVALID_TICKER') {
+      res.status(404).json({ error: 'Ticker not found' });
+    } else if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
+      res.status(429).json({ error: 'API rate limit exceeded. Please try again in a minute.' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch stock data' });
+    }
+  }
 });
 
 

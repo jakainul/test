@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Salary, BudgetSummary, Savings, SavingsAllocation } from './types';
+import { Salary, BudgetSummary, Savings, SavingsAllocation, StockTicker, StockData } from './types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
@@ -46,5 +46,25 @@ export const deleteSavings = async (id: number): Promise<void> => {
 // Budget summary
 export const getBudgetSummary = async (): Promise<BudgetSummary> => {
   const response = await api.get('/budget-summary');
+  return response.data;
+};
+
+// Stock API calls
+export const getStockWatchlist = async (): Promise<StockTicker[]> => {
+  const response = await api.get('/stocks/watchlist');
+  return response.data;
+};
+
+export const addStockToWatchlist = async (ticker: string): Promise<StockTicker> => {
+  const response = await api.post('/stocks/watchlist', { ticker });
+  return response.data;
+};
+
+export const removeStockFromWatchlist = async (ticker: string): Promise<void> => {
+  await api.delete(`/stocks/watchlist/${ticker}`);
+};
+
+export const getStockData = async (ticker: string): Promise<StockData> => {
+  const response = await api.get(`/stocks/data/${ticker}`);
   return response.data;
 };
