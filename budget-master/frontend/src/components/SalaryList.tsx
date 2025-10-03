@@ -14,7 +14,7 @@ const SalaryList: React.FC<SalaryListProps> = ({ salaries, onSalaryDeleted, show
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-EU', {
+    return new Intl.NumberFormat('en-IE', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,

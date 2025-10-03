@@ -7,7 +7,7 @@ interface BudgetSummaryProps {
 
 const BudgetSummary: React.FC<BudgetSummaryProps> = ({ summary }) => {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-EU', {
+    return new Intl.NumberFormat('en-IE', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
