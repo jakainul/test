@@ -14,8 +14,7 @@ function App() {
   const [salaries, setSalaries] = useState<Salary[]>([]);
   const [savings, setSavings] = useState<Savings[]>([]);
   const [budgetSummary, setBudgetSummary] = useState<BudgetSummaryType>({
-    totalSalaries: 0,
-    balance: 0
+    totalSalaries: 0
   });
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);

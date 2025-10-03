@@ -292,8 +292,7 @@ app.get('/api/budget-summary', (req, res) => {
     
     const totalSalaries = row.total || 0;
     res.json({
-      totalSalaries,
-      balance: totalSalaries
+      totalSalaries
     });
   });
 });
