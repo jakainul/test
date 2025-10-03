@@ -160,7 +160,8 @@ code {
   padding: 24px 32px;
   border-radius: 8px;
   text-align: center;
-  min-width: 300px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .total-income {
