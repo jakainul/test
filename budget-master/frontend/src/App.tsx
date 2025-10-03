@@ -56,7 +56,7 @@ function App() {
     return (
       <div className="container">
         <div style={{ textAlign: 'center', padding: '50px' }}>
-          <h2>Loading Budget Master...</h2>
+          <h2>Loading Savings Master...</h2>
         </div>
       </div>
     );
@@ -65,7 +65,7 @@ function App() {
   return (
     <div className="container">
       <div className="header">
-        <h1>💰 Budget Master</h1>
+        <h1>💰 Savings Master</h1>
         <p>Track your monthly salaries and savings with ease</p>
       </div>
 
