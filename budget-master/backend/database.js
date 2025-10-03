@@ -40,10 +40,29 @@ const initDatabase = () => {
           if (savingsErr) {
             console.error('Error creating savings table:', savingsErr);
             reject(savingsErr);
-          } else {
-            console.log('Database initialized successfully');
-            resolve();
+            return;
           }
+
+          // Create stock_holdings table
+          db.run(`
+            CREATE TABLE IF NOT EXISTS stock_holdings (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              symbol TEXT NOT NULL,
+              company_name TEXT,
+              quantity INTEGER NOT NULL,
+              purchase_price REAL NOT NULL,
+              purchase_date TEXT NOT NULL,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `, (stockErr) => {
+            if (stockErr) {
+              console.error('Error creating stock_holdings table:', stockErr);
+              reject(stockErr);
+            } else {
+              console.log('Database initialized successfully');
+              resolve();
+            }
+          });
         });
       });
     });
