@@ -79,8 +79,8 @@ function DataTable<T extends Record<string, any>>({
             </tr>
           </thead>
           <tbody>
-            {data.map((record, index) => (
-              <tr key={index} className="data-row">
+            {data.map((record) => (
+              <tr key={record.id || record.key} className="data-row">
                 {columns.map((column) => {
                   const value = record[column.key as keyof T];
                   const content = column.render ? column.render(value, record) : value;

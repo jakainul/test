@@ -11,7 +11,15 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Initialize database
-initDatabase().catch(console.error);
+initDatabase()
+  .then(() => {
+    console.log('Database ready for connections');
+  })
+  .catch((err) => {
+    console.error('FATAL: Failed to initialize database:', err);
+    console.error('Server cannot start without a working database connection.');
+    process.exit(1);
+  });
 
 // Routes
 

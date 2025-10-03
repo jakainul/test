@@ -1,7 +1,7 @@
 # Bug Fixes Summary - Budget Master
 
 ## Date: October 3, 2025
-## Fixed Bugs: #2, #3, #4
+## Fixed Bugs: #2, #3, #4, #8, #10, #11
 
 ---
 
@@ -187,6 +187,143 @@ All use EUR and would format correctly, but `'en-IE'` was chosen to maintain Eng
 
 ---
 
+## ✅ Bug #8: Fixed - DataTable Uses Array Index as Key
+
+**File:** `/workspace/budget-master/frontend/src/components/DataTable.tsx`  
+**Line:** 83
+
+### What was fixed:
+Changed the DataTable component to use unique record IDs instead of array indices as React keys for table rows.
+
+### Before:
+```tsx
+{data.map((record, index) => (
+  <tr key={index} className="data-row">
+```
+
+### After:
+```tsx
+{data.map((record) => (
+  <tr key={record.id || record.key} className="data-row">
+```
+
+### Why this matters:
+Using array indices as keys is a React anti-pattern that can cause:
+- **Incorrect component updates:** When items are reordered or filtered, React may incorrectly reuse component instances
+- **State preservation issues:** Component state may persist incorrectly between re-renders
+- **Performance problems:** React cannot efficiently track which items changed
+- **Rendering bugs:** Especially problematic with sortable/filterable lists
+
+### Impact:
+- ✅ Proper React key usage with unique identifiers
+- ✅ Correct component behavior when sorting/filtering data
+- ✅ Better performance and predictable rendering
+- ✅ Works with both Salary and Savings data (both have `id` field)
+
+---
+
+## ✅ Bug #10: Fixed - Database Initialization Error Handling
+
+**File:** `/workspace/budget-master/backend/server.js`  
+**Line:** 14-22
+
+### What was fixed:
+Added proper error handling for database initialization that prevents the server from starting if the database fails to initialize.
+
+### Before:
+```javascript
+// Initialize database
+initDatabase().catch(console.error);
+```
+
+**Problem:** Server would start even if database initialization failed, leading to 500 errors on all API calls.
+
+### After:
+```javascript
+// Initialize database
+initDatabase()
+  .then(() => {
+    console.log('Database ready for connections');
+  })
+  .catch((err) => {
+    console.error('FATAL: Failed to initialize database:', err);
+    console.error('Server cannot start without a working database connection.');
+    process.exit(1);
+  });
+```
+
+### Impact:
+- ✅ **Fail-fast behavior:** Server won't start with broken database
+- ✅ **Clear error messages:** Developers immediately know what went wrong
+- ✅ **No silent failures:** Prevents confusing 500 errors during runtime
+- ✅ **Production safety:** Ensures the application is in a valid state before accepting requests
+
+---
+
+## ✅ Bug #11: Fixed - Salaries Table Missing Error Callback
+
+**File:** `/workspace/budget-master/backend/database.js`  
+**Lines:** 13-48
+
+### What was fixed:
+Added error callback to the salaries table creation and restructured the database initialization to properly handle errors from both table creations sequentially.
+
+### Before:
+```javascript
+db.serialize(() => {
+  // Create salaries table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS salaries (...)
+  `);
+
+  // Create savings table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS savings (...)
+  `, (savingsErr) => {
+    // Only savings errors were caught
+  });
+});
+```
+
+**Problem:** Errors during salaries table creation were silently ignored.
+
+### After:
+```javascript
+db.serialize(() => {
+  // Create salaries table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS salaries (...)
+  `, (salariesErr) => {
+    if (salariesErr) {
+      console.error('Error creating salaries table:', salariesErr);
+      reject(salariesErr);
+      return;
+    }
+
+    // Create savings table (only if salaries succeeded)
+    db.run(`
+      CREATE TABLE IF NOT EXISTS savings (...)
+    `, (savingsErr) => {
+      if (savingsErr) {
+        console.error('Error creating savings table:', savingsErr);
+        reject(savingsErr);
+      } else {
+        console.log('Database initialized successfully');
+        resolve();
+      }
+    });
+  });
+});
+```
+
+### Impact:
+- ✅ **Complete error coverage:** Both table creation operations are now monitored
+- ✅ **Sequential execution:** Savings table only created if salaries table succeeds
+- ✅ **Proper promise handling:** Errors correctly propagate to calling code
+- ✅ **Better debugging:** Clear error messages for each table creation step
+
+---
+
 ## 🧪 Testing
 
 ### Manual Testing Completed:
@@ -212,6 +349,19 @@ All use EUR and would format correctly, but `'en-IE'` was chosen to maintain Eng
    - Verify currency format is consistent
    - Check that €X,XXX.XX format displays properly
 
+4. **DataTable Key Testing:**
+   - Add multiple salary/savings entries
+   - Sort the tables by different columns
+   - Delete entries and verify correct rows are removed
+   - Add new entries and verify they appear correctly
+   - Check React DevTools for proper key usage
+
+5. **Database Error Handling Testing:**
+   - Try starting server with invalid database path (should exit with error)
+   - Verify error messages are clear and informative
+   - Test that server refuses to start if database init fails
+   - Verify both tables are created successfully on clean install
+
 ---
 
 ## 📊 Summary
@@ -221,9 +371,12 @@ All use EUR and would format correctly, but `'en-IE'` was chosen to maintain Eng
 | 2 | Hardcoded year max (SalaryForm) | ✅ Fixed | 1 |
 | 3 | Hardcoded year max (SavingsForm) | ✅ Fixed | 1 |
 | 4 | Invalid locale 'en-EU' | ✅ Fixed | 4 |
+| 8 | DataTable uses array index as key | ✅ Fixed | 1 |
+| 10 | Database initialization error handling | ✅ Fixed | 1 |
+| 11 | Salaries table missing error callback | ✅ Fixed | 1 |
 
-**Total files modified:** 6  
-**Total lines changed:** 12  
+**Total files modified:** 9  
+**Total lines changed:** ~50  
 **Linter errors:** 0  
 **Breaking changes:** None
 
@@ -235,8 +388,6 @@ The following bugs from the original report remain:
 
 - **Bug #1:** Inconsistent application naming (Medium priority)
 - **Bug #6:** Missing total savings in BudgetSummary (Medium priority)
-- **Bug #8:** DataTable uses array index as key (Medium priority)
-- **Bug #10:** Database initialization error handling (Medium priority)
 - **Bug #12:** Deprecated dependencies with vulnerabilities (Low priority)
 
 ---
