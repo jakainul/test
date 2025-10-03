@@ -6,6 +6,7 @@ import BudgetSummary from './components/BudgetSummary';
 import SalaryList from './components/SalaryList';
 import SavingsList from './components/SavingsList';
 import SavingsSummary from './components/SavingsSummary';
+import StockWatchlist from './components/StockWatchlist';
 import Toast from './components/Toast';
 import { getSalaries, getSavings, getBudgetSummary } from './api';
 import { Salary, Savings, BudgetSummary as BudgetSummaryType } from './types';
@@ -17,9 +18,9 @@ function App() {
     totalSalaries: 0
   });
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  const [toast, setToast] = useState<{message: string, type: 'success' | 'error' | 'info'} | null>(null);
 
-  const showToast = (message: string, type: 'success' | 'error') => {
+  const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
@@ -90,6 +91,13 @@ function App() {
       </div>
 
       <SavingsSummary savings={savings} />
+
+      {/* Stock Watchlist Section */}
+      <hr className="section-divider" />
+      
+      <div className="card">
+        <StockWatchlist showToast={showToast} />
+      </div>
       
       {toast && (
         <Toast 

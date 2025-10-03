@@ -30,3 +30,31 @@ export interface SavingsAllocation {
   selectedMonth: string;
   year: number;
 }
+
+export interface StockTicker {
+  id: number;
+  ticker: string;
+  added_at: string;
+}
+
+export interface StockQuote {
+  ticker: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  timestamp: string;
+  companyName?: string;
+}
+
+export interface StockData {
+  ticker: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  volume: number;
+  timestamp: string;
+  companyName?: string;
+  dividendYield?: number;
+  exDividendDate?: string;
+}

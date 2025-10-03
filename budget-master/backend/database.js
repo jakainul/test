@@ -40,10 +40,25 @@ const initDatabase = () => {
           if (savingsErr) {
             console.error('Error creating savings table:', savingsErr);
             reject(savingsErr);
-          } else {
-            console.log('Database initialized successfully');
-            resolve();
+            return;
           }
+
+          // Create stock_watchlist table
+          db.run(`
+            CREATE TABLE IF NOT EXISTS stock_watchlist (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              ticker TEXT NOT NULL UNIQUE,
+              added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `, (stockErr) => {
+            if (stockErr) {
+              console.error('Error creating stock_watchlist table:', stockErr);
+              reject(stockErr);
+            } else {
+              console.log('Database initialized successfully');
+              resolve();
+            }
+          });
         });
       });
     });
