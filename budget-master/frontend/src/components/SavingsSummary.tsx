@@ -196,7 +196,7 @@ const SavingsSummary: React.FC<SavingsSummaryProps> = ({ savings }) => {
         const projectionData = [...new Array(months.length).fill(null), ...projections];
         
         projectionDatasets.push({
-          label: `${category} ${(rate * 100)}% Growth`,
+          label: `${category} ${(rate * 100).toFixed(0)}% Growth`,
           data: projectionData,
           borderColor: getProjectionColor(category, rate),
           backgroundColor: getProjectionColor(category, rate) + '10',
