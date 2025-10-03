@@ -22,8 +22,8 @@ setInterval(() => {
  * Make a rate-limited API request to Alpha Vantage
  */
 const makeApiRequest = async (params) => {
-  // Check cache first
-  const cacheKey = JSON.stringify(params);
+  // Check cache first (include API key to avoid cross-key cache collisions)
+  const cacheKey = JSON.stringify({ ...params, apikey: API_KEY });
   const cachedData = cache.get(cacheKey);
   
   if (cachedData && Date.now() - cachedData.timestamp < CACHE_TTL) {
