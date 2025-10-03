@@ -186,7 +186,7 @@ const SavingsForm: React.FC<SavingsFormProps> = ({ onSavingsAdded, showToast }) 
             id="savings-year"
             type="number"
             min="2020"
-            max="2030"
+            max={new Date().getFullYear() + 10}
             value={year}
             onChange={(e) => setYear(e.target.value)}
             required

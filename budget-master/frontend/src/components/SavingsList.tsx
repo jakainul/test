@@ -18,7 +18,7 @@ const SavingsList: React.FC<SavingsListProps> = ({ savings, onSavingsDeleted, sh
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-EU', {
+    return new Intl.NumberFormat('en-IE', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
