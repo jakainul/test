@@ -34,6 +34,15 @@ code {
   border: 1px solid #e1e5e9;
 }
 
+.budget-summary-card {
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .form-group {
   margin-bottom: 16px;
 }
