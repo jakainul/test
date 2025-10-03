@@ -52,6 +52,15 @@
             border: 1px solid #e1e5e9;
         }
 
+        .budget-summary-card {
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .totals-grid {
             display: flex;
             justify-content: center;
@@ -63,7 +72,8 @@
             padding: 24px 32px;
             border-radius: 8px;
             text-align: center;
-            min-width: 300px;
+            width: fit-content;
+            margin: 0 auto;
         }
 
         .total-income {
@@ -147,8 +157,8 @@
 <body>
     <div class="container">
         <div class="preview-note">
-            <strong>📱 UI PREVIEW - Centered Total Salaries</strong>
-            <p style="margin-top: 8px; color: #856404;">This is how the Budget Master UI will look with the centered total salaries card</p>
+            <strong>📱 UI PREVIEW - Centered & Compact Total Salaries</strong>
+            <p style="margin-top: 8px; color: #856404;">This is how the Budget Master UI will look with the centered and compact total salaries card</p>
         </div>
 
         <div class="header">
@@ -156,7 +166,7 @@
             <p>Track your monthly salaries and savings with ease</p>
         </div>
 
-        <div class="card">
+        <div class="card budget-summary-card">
             <div class="totals-grid">
                 <div class="total-card total-income">
                     <div class="total-amount">€5,420.50</div>
@@ -167,34 +177,35 @@
 
         <div class="comparison">
             <div class="comparison-section before">
-                <h3>❌ Before (Left-aligned)</h3>
-                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e1e5e9;">
-                    <div class="demo-totals-before">
-                        <div class="total-card total-income">
-                            <div class="total-amount">€5,420.50</div>
-                            <div class="total-label">Total Salaries</div>
-                        </div>
-                        <div style="background: #f5f7fa; border: 2px dashed #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-style: italic;">
-                            Empty space
+                <h3>❌ Before (Wide Card)</h3>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                    <div style="background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); border: 1px solid #e1e5e9; margin-bottom: 16px;">
+                        <div class="totals-grid">
+                            <div class="total-card total-income">
+                                <div class="total-amount">€5,420.50</div>
+                                <div class="total-label">Total Salaries</div>
+                            </div>
                         </div>
                     </div>
                     <p style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
-                        The card was aligned to the left due to CSS Grid with 2 columns
+                        The white card stretched to full width (too wide)
                     </p>
                 </div>
             </div>
 
             <div class="comparison-section after">
-                <h3>✅ After (Centered)</h3>
-                <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e1e5e9;">
-                    <div class="totals-grid">
-                        <div class="total-card total-income">
-                            <div class="total-amount">€5,420.50</div>
-                            <div class="total-label">Total Salaries</div>
+                <h3>✅ After (Compact & Centered)</h3>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                    <div class="card budget-summary-card" style="margin-bottom: 16px;">
+                        <div class="totals-grid">
+                            <div class="total-card total-income">
+                                <div class="total-amount">€5,420.50</div>
+                                <div class="total-label">Total Salaries</div>
+                            </div>
                         </div>
                     </div>
                     <p style="text-align: center; color: #6b7280; margin-top: 12px; font-size: 14px;">
-                        The card is now perfectly centered using Flexbox
+                        The white card fits content and is centered
                     </p>
                 </div>
             </div>
@@ -203,10 +214,10 @@
         <div style="margin-top: 40px; background: #e0f2fe; border: 2px solid #0ea5e9; border-radius: 8px; padding: 20px;">
             <h3 style="color: #075985; margin-bottom: 12px;">✨ Key Improvements</h3>
             <ul style="color: #075985; margin-left: 20px; line-height: 1.8;">
-                <li><strong>Visual Balance:</strong> Card centered for better aesthetics</li>
-                <li><strong>Larger Text:</strong> Amount increased from 1.5rem to 2rem</li>
-                <li><strong>Better Spacing:</strong> More padding (24px 32px instead of 16px)</li>
-                <li><strong>Enhanced Label:</strong> Larger font size (1rem) and font-weight 500</li>
+                <li><strong>Compact White Card:</strong> Card now fits tightly around content instead of spanning full width</li>
+                <li><strong>Horizontally Centered:</strong> Card is centered using margin: 0 auto</li>
+                <li><strong>Vertically Centered:</strong> Content is vertically aligned within the card</li>
+                <li><strong>Better Visual Balance:</strong> Reduced width creates better focus</li>
                 <li><strong>Responsive Design:</strong> Works on all screen sizes</li>
             </ul>
         </div>

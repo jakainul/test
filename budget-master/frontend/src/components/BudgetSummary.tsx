@@ -15,7 +15,7 @@ const BudgetSummary: React.FC<BudgetSummaryProps> = ({ summary }) => {
   };
 
   return (
-    <div className="card">
+    <div className="card budget-summary-card">
       <div className="totals-grid">
         <div className="total-card total-income">
           <div className="total-amount">{formatCurrency(summary.totalSalaries)}</div>
